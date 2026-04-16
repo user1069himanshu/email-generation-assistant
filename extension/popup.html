@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Email Generation Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">✉</div>
+        <div class="logo-text">
+          <span class="logo-title">Email AI</span>
+          <span class="logo-sub">Powered by GPT-4o</span>
+        </div>
+      </div>
+      <div class="model-badge" id="model-badge">Advanced</div>
+    </header>
+
+    <!-- Form -->
+    <main class="form-section">
+
+      <!-- Intent -->
+      <div class="field-group">
+        <label class="field-label" for="intent">
+          <span class="label-icon">🎯</span> Intent
+        </label>
+        <input
+          id="intent"
+          class="field-input"
+          type="text"
+          placeholder="e.g. Follow up after a sales meeting"
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Key Facts -->
+      <div class="field-group">
+        <label class="field-label" for="facts">
+          <span class="label-icon">📋</span> Key Facts
+          <span class="field-hint">one per line</span>
+        </label>
+        <textarea
+          id="facts"
+          class="field-textarea"
+          rows="4"
+          placeholder="Meeting was on April 10&#10;Discussed pricing for 50 licences&#10;Next step: send proposal by April 17"
+        ></textarea>
+      </div>
+
+      <!-- Tone -->
+      <div class="field-group">
+        <label class="field-label">
+          <span class="label-icon">🎭</span> Tone
+        </label>
+        <div class="tone-chips" id="tone-chips">
+          <button class="chip active" data-tone="formal">Formal</button>
+          <button class="chip" data-tone="casual">Casual</button>
+          <button class="chip" data-tone="urgent">Urgent</button>
+          <button class="chip" data-tone="empathetic">Empathetic</button>
+          <button class="chip" data-tone="warm">Warm</button>
+          <button class="chip" data-tone="professional">Professional</button>
+        </div>
+      </div>
+
+      <!-- Generate Button -->
+      <button class="btn-generate" id="btn-generate">
+        <span class="btn-text">Generate Email</span>
+        <span class="btn-spinner hidden" id="spinner">⟳</span>
+      </button>
+
+      <!-- Error -->
+      <div class="error-box hidden" id="error-box">
+        <span id="error-msg"></span>
+      </div>
+    </main>
+
+    <!-- Output -->
+    <section class="output-section hidden" id="output-section">
+      <div class="output-header">
+        <span class="output-label">Generated Email</span>
+        <div class="output-actions">
+          <button class="btn-icon" id="btn-copy" title="Copy to clipboard">⧉ Copy</button>
+          <button class="btn-icon btn-insert" id="btn-insert" title="Insert into Gmail compose">↗ Insert</button>
+        </div>
+      </div>
+      <div class="output-box" id="output-box"></div>
+
+      <!-- Metrics -->
+      <div class="metrics-row" id="metrics-row">
+        <div class="metric-card" id="metric-recall">
+          <div class="metric-value">—</div>
+          <div class="metric-name">Fact Recall</div>
+        </div>
+        <div class="metric-card" id="metric-tone">
+          <div class="metric-value">—</div>
+          <div class="metric-name">Tone Accuracy</div>
+        </div>
+        <div class="metric-card" id="metric-clarity">
+          <div class="metric-value">—</div>
+          <div class="metric-name">Clarity</div>
+        </div>
+        <div class="metric-card metric-avg" id="metric-avg">
+          <div class="metric-value">—</div>
+          <div class="metric-name">Avg Score</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
