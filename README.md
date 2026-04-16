@@ -125,7 +125,7 @@ Prints a rich side-by-side table and analysis summary.
 | Configuration | Model | Prompting Strategy |
 |---|---|---|
 | **Model A** | GPT-4o | Role-Playing + Few-Shot + Chain-of-Thought |
-| **Model B** | GPT-4o-mini | Zero-Shot |
+| **Model B** | GPT-4o-mini | Structured CoT + Constraints |
 
 ---
 

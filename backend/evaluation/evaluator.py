@@ -31,9 +31,9 @@ MODELS = [
         "strategy": "advanced",
     },
     {
-        "name": "GPT-4o-mini (Zero-Shot)",
+        "name": "GPT-4o-mini (Structured CoT)",
         "model": "gpt-4o-mini",
-        "strategy": "simple",
+        "strategy": "thoughtful",
     },
 ]
 

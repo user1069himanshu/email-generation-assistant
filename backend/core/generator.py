@@ -1,8 +1,8 @@
 """
 Email generator — wraps OpenAI chat completions.
 Supports two strategies:
-  advanced : Role-Play + Few-Shot + CoT  (recommended, Model A)
-  simple   : Zero-shot                   (baseline, Model B)
+  advanced   : Role-Play + Few-Shot + CoT         (recommended, Model A)
+  thoughtful : Structured CoT + Constraints       (baseline, Model B)
 """
 
 import os
@@ -11,9 +11,9 @@ from dotenv import load_dotenv
 
 from .prompts import (
     SYSTEM_PROMPT_ADVANCED,
-    SYSTEM_PROMPT_SIMPLE,
+    SYSTEM_PROMPT_THOUGHTFUL,
     build_advanced_prompt,
-    build_simple_prompt,
+    build_thoughtful_prompt,
 )
 
 load_dotenv()
@@ -35,7 +35,7 @@ def generate_email(
         facts    : List of key facts to include.
         tone     : Desired tone (formal, casual, urgent, empathetic, …).
         model    : OpenAI model name.
-        strategy : "advanced" or "simple".
+        strategy : "advanced" or "thoughtful".
 
     Returns:
         Generated email text (subject line included).
@@ -44,8 +44,8 @@ def generate_email(
         system_prompt = SYSTEM_PROMPT_ADVANCED
         user_prompt = build_advanced_prompt(intent, facts, tone)
     else:
-        system_prompt = SYSTEM_PROMPT_SIMPLE
-        user_prompt = build_simple_prompt(intent, facts, tone)
+        system_prompt = SYSTEM_PROMPT_THOUGHTFUL
+        user_prompt = build_thoughtful_prompt(intent, facts, tone)
 
     response = client.chat.completions.create(
         model=model,

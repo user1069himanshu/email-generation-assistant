@@ -97,21 +97,33 @@ Now write the complete email (include Subject line):
 """
 
 # ─────────────────────────────────────────────
-# SIMPLE SYSTEM PROMPT  (Model B — GPT-4o-mini zero-shot)
+# THOUGHTFUL SYSTEM PROMPT  (Model B — GPT-4o-mini structured)
 # ─────────────────────────────────────────────
-SYSTEM_PROMPT_SIMPLE = (
-    "You are a helpful assistant that writes professional emails."
-)
+SYSTEM_PROMPT_THOUGHTFUL = """You are an expert communication assistant who writes highly effective, \
+structured professional emails. Ensure your emails are polite, well-formatted, and completely accurate.
+
+Constraints:
+1. Include a clear, concise Subject Line.
+2. Group related facts into logical paragraphs or bullet points.
+3. Ensure no fact from the input is omitted.
+4. Maintain the exact requested tone.
+5. Close with a clear call-to-action or next steps if applicable."""
 
 
-def build_simple_prompt(intent: str, facts: list[str], tone: str) -> str:
+def build_thoughtful_prompt(intent: str, facts: list[str], tone: str) -> str:
     facts_str = "\n".join(f"- {f}" for f in facts)
-    return f"""Write a professional email with the following details:
+    return f"""Task: Write a professional email based on the details below.
 
 Intent: {intent}
-Key facts to include:
-{facts_str}
 Tone: {tone}
 
-Write the complete email including subject line:
+Key facts to include:
+{facts_str}
+
+Please follow these steps:
+Step 1: Identify the main goal of the email based on the intent.
+Step 2: Plan the structure (Opening, Body, Closing) and ensure all facts are logically placed.
+Step 3: Write the final email reflecting the '{tone}' tone.
+
+Draft your reasoning briefly, then provide the final email (starting with 'Subject:').
 """
