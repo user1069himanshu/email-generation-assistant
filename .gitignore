@@ -18,8 +18,8 @@ env/
 
 # Generated reports (run locally, never commit)
 reports/
-*.csv
-*.json
+reports/*.csv
+reports/*.json
 
 # IDE
 .vscode/

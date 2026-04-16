@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Email Generation Assistant",
+  "version": "1.0.0",
+  "description": "Generate professional emails with AI — powered by GPT-4o. Works inside Gmail.",
+  "permissions": ["activeTab", "storage", "scripting"],
+  "host_permissions": [
+    "http://localhost:8000/*",
+    "https://mail.google.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Email Generation Assistant"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://mail.google.com/*"],
+      "js": ["content_script.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
