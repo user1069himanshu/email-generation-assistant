@@ -56,4 +56,8 @@ def generate_email(
         temperature=0.7,
         max_tokens=900,
     )
-    return response.choices[0].message.content.strip()
+    content = response.choices[0].message.content.strip()
+    # Strip out any pre-written reasoning by finding the start of the email
+    if "Subject:" in content:
+        content = "Subject:" + content.split("Subject:", 1)[1]
+    return content.strip()

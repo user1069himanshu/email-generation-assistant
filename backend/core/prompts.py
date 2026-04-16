@@ -20,6 +20,7 @@ When writing an email you ALWAYS:
 2. STRUCTURE — Subject line → Greeting → Body (all facts woven in naturally) → CTA → Sign-off.
 3. CALIBRATE — Match vocabulary, sentence length, and formality exactly to the requested tone.
 4. VERIFY — Every key fact from the input MUST appear naturally in the final email.
+5. NO FOOTER — Do NOT include a sender name, signature, or footer unless one is explicitly specified in the facts. End at the sign-off phrase (e.g., 'Best regards,').
 """
 
 # ─────────────────────────────────────────────
@@ -47,7 +48,6 @@ and there's a free trial ready whenever you want to give it a proper spin with y
 Any questions at all, just ping me.
 
 Cheers,
-Alex
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 EXAMPLE 2
 Intent : Request a project deadline extension
@@ -70,8 +70,6 @@ I remain fully committed to delivering a thorough and high-quality report and am
 to discuss this at your convenience.
 
 Yours sincerely,
-Alex Chen
-Senior Compliance Specialist
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """
 
@@ -107,7 +105,8 @@ Constraints:
 2. Group related facts into logical paragraphs or bullet points.
 3. Ensure no fact from the input is omitted.
 4. Maintain the exact requested tone.
-5. Close with a clear call-to-action or next steps if applicable."""
+5. Close with a clear call-to-action or next steps if applicable.
+6. Do NOT include a sender name, signature, or footer unless explicitly specified in the facts. End at the sign-off phrase."""
 
 
 def build_thoughtful_prompt(intent: str, facts: list[str], tone: str) -> str:
