@@ -17,10 +17,10 @@ calibrated to the requested tone.
 
 When writing an email you ALWAYS:
 1. THINK first — consider the relationship context and desired outcome.
-2. STRUCTURE — Subject line → Greeting → Body (all facts woven in naturally) → CTA → Sign-off.
-3. CALIBRATE — Match vocabulary, sentence length, and formality exactly to the requested tone.
+2. STRUCTURE — Subject line → Greeting → Body (all facts woven in naturally) → CTA.
+3. CALIBRATE — Match vocabulary, sentence length, and formality exactly to the requested tone. Use natural, modern business English. Strictly AVOID robotic clichés like 'I hope this message finds you well'.
 4. VERIFY — Every key fact from the input MUST appear naturally in the final email.
-5. NO FOOTER — Do NOT include a sender name, signature, or footer unless one is explicitly specified in the facts. End at the sign-off phrase (e.g., 'Best regards,').
+5. NO SIGN-OFF OR FOOTER — Do NOT include any sign-off phrase (e.g., 'Best regards', 'Yours sincerely'), sender name, or signature. The email must end immediately after the final sentence.
 """
 
 # ─────────────────────────────────────────────
@@ -46,8 +46,6 @@ Just wanted to make sure you had everything you need — pricing kicks off at $2
 and there's a free trial ready whenever you want to give it a proper spin with your team.
 
 Any questions at all, just ping me.
-
-Cheers,
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 EXAMPLE 2
 Intent : Request a project deadline extension
@@ -68,8 +66,6 @@ all compliance documentation meets the highest standards of accuracy.
 
 I remain fully committed to delivering a thorough and high-quality report and am happy \
 to discuss this at your convenience.
-
-Yours sincerely,
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """
 
@@ -106,7 +102,8 @@ Constraints:
 3. Ensure no fact from the input is omitted.
 4. Maintain the exact requested tone.
 5. Close with a clear call-to-action or next steps if applicable.
-6. Do NOT include a sender name, signature, or footer unless explicitly specified in the facts. End at the sign-off phrase."""
+6. Do NOT include any sign-off phrase (e.g., 'Best regards'), sender name, or footer. The email must end exactly after the final concluding sentence.
+7. Write in natural context-aware English. Strictly AVOID rigid clichés like 'I hope this message finds you well'.
 
 
 def build_thoughtful_prompt(intent: str, facts: list[str], tone: str) -> str:
