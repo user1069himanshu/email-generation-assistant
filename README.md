@@ -9,7 +9,7 @@
 - **Chrome Extension** with a polished dark-mode popup (works inside Gmail)
 - **One-click Gmail insertion** — generated email drops straight into your compose window
 - **Advanced prompting** — Role-Playing + Few-Shot Examples + Chain-of-Thought
-- **Live evaluation scores** — Fact Recall, Tone Accuracy, Clarity & Conciseness
+- **Live evaluation scores** — Fact Fidelity, Communication Nuance, Structural Clarity (40/35/25 weighting)
 - **Model comparison pipeline** — GPT-4o vs GPT-4o-mini across 10 test scenarios
 
 ---
@@ -95,11 +95,12 @@ Click the extension icon in your toolbar to open the popup.
 
 ### Custom Metrics
 
-| # | Metric | Method | Range |
-|---|--------|--------|-------|
-| 1 | **Fact Recall** | Keyword matching — fraction of input facts found in email | 0–1 |
-| 2 | **Tone Accuracy** | LLM-as-a-Judge (GPT-4o-mini rates tone match 1–10) | 0–1 |
-| 3 | **Clarity & Conciseness** | Flesch Reading Ease + length penalty (≤200 words ideal) | 0–1 |
+| # | Metric | Method | Range | Weight |
+|---|--------|--------|-------|--------|
+| 1 | **Fact Fidelity** | LLM-as-a-Judge (Recall, Truth, Hallucination Check) | 0–1 | 40% |
+| 2 | **Communication Nuance** | LLM-as-a-Judge (Tone, Persona, Cliché Check) | 0–1 | 35% |
+| 3 | **Structural Clarity** | Code-based (Format Check + Flesch Readability) | 0–1 | 25% |
+
 
 ### Run the full evaluation (10 scenarios × 2 models)
 
@@ -133,7 +134,7 @@ Prints a rich side-by-side table and analysis summary.
 
 The advanced prompt used in Model A combines three techniques:
 
-1. **Role-Playing** — The LLM is assigned the persona of "Alex Chen, a senior business communication specialist", anchoring tone and quality expectations.
+1. **Role-Playing** — The LLM is assigned the persona of "Alex Chen, a senior business communication specialist (Modern, Clear, Persuasive, Confident)", anchoring tone and quality expectations.
 2. **Few-Shot Examples** — Two worked examples (one casual, one formal) demonstrate the expected structure and quality.
 3. **Chain-of-Thought** — The model is instructed to reason about the recipient, tone signals, and fact placement *before* writing the email.
 
