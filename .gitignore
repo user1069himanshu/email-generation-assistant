@@ -34,3 +34,8 @@ Thumbs.db
 # Temp scripts
 read_docx.ps1
 workflow.docx
+
+# DeepEval
+.deepeval/
+**/ .deepeval/
+

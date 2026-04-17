@@ -7,3 +7,4 @@ pandas>=2.2.0
 rich>=13.7.0
 tqdm>=4.66.0
 pydantic>=2.7.0
+deepeval

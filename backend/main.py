@@ -56,6 +56,9 @@ class EvaluateRequest(BaseModel):
     email: str
     facts: list[str]
     tone: str
+    intent: str = ""
+    strategy: str = "advanced"
+    reference_email: str | None = None
 
 
 # ─── Endpoints ────────────────────────────────────────────────────
@@ -85,6 +88,13 @@ def generate(req: GenerateRequest):
 def evaluate(req: EvaluateRequest):
     """Score an email with the 3 custom metrics."""
     try:
-        return compute_all_metrics(req.email, req.facts, req.tone)
+        return compute_all_metrics(
+            req.email, 
+            req.facts, 
+            req.tone, 
+            req.intent, 
+            req.strategy, 
+            req.reference_email
+        )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc

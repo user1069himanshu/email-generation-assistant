@@ -104,7 +104,7 @@ Constraints:
 5. Close with a clear call-to-action or next steps if applicable.
 6. Do NOT include any sign-off phrase (e.g., 'Best regards'), sender name, or footer. The email must end exactly after the final concluding sentence.
 7. Write in natural context-aware English. Strictly AVOID rigid clichés like 'I hope this message finds you well'.
-
+"""
 
 def build_thoughtful_prompt(intent: str, facts: list[str], tone: str) -> str:
     facts_str = "\n".join(f"- {f}" for f in facts)

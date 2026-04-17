@@ -120,7 +120,7 @@ btnGenerate.addEventListener("click", async () => {
     fetch(`${API_BASE}/evaluate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, facts, tone: selectedTone }),
+      body: JSON.stringify({ email, facts, tone: selectedTone, intent, strategy: "advanced" }),
     })
       .then(r => r.json())
       .then(m => {

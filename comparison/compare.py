@@ -24,12 +24,15 @@ JSON_PATH = REPORTS_DIR / "evaluation_results.json"
 
 console = Console()
 
-METRICS = {
-    "fact_recall": "Fact Recall ↑",
-    "tone_accuracy": "Tone Accuracy ↑",
-    "clarity_conciseness": "Clarity & Conciseness ↑",
-    "avg_score": "Overall Average ↑",
-}
+METRICS = [
+    ("fact_recall", "Fact Recall"),
+    ("tone_accuracy", "Tone Accuracy"),
+    ("clarity_conciseness", "Clarity & Conciseness"),
+    ("faithfulness", "Faithfulness (DeepEval)"),
+    ("answer_relevancy", "Answer Relevancy (DeepEval)"),
+    ("answer_correctness", "Answer Correctness (DeepEval)"),
+    ("avg_score", "Overall Average"),
+]
 
 
 def load_results() -> list[dict] | None:
@@ -49,11 +52,13 @@ def compute_averages(results: list[dict]) -> dict[str, dict]:
     for r in results:
         mn = r["model_name"]
         if mn not in stats:
-            stats[mn] = {k: [] for k in METRICS}
-        for k in METRICS:
-            stats[mn][k].append(r[k])
+            stats[mn] = {k: [] for k, _ in METRICS}
+        for k, _ in METRICS:
+            val = r.get(k)
+            if val is not None and val != "":
+                stats[mn][k].append(float(val))
     return {
-        mn: {k: round(sum(v) / len(v), 4) for k, v in data.items()}
+        mn: {k: round(sum(v) / len(v), 4) if v else None for k, v in data.items()}
         for mn, data in stats.items()
     }
 
@@ -73,7 +78,7 @@ def print_comparison() -> None:
 
     # ── Comparison Table ──────────────────────────────────────────
     table = Table(
-        title="📊  Email Generation Assistant — Model Comparison",
+        title="Email Generation Assistant - Model Comparison",
         box=box.ROUNDED,
         border_style="bright_blue",
         header_style="bold cyan",
@@ -83,44 +88,47 @@ def print_comparison() -> None:
     for mn in model_names:
         table.add_column(mn, justify="center", min_width=20)
 
-    for metric_key, metric_label in METRICS.items():
-        row_scores = [averages[mn][metric_key] for mn in model_names]
-        best_val = max(row_scores)
+    for metric_key, metric_label in METRICS:
+        row_scores = [averages[mn].get(metric_key) for mn in model_names]
+        valid_scores = [s for s in row_scores if s is not None]
+        best_val = max(valid_scores) if valid_scores else None
+        
         cells = []
         for score in row_scores:
-            if score == best_val:
+            if score is None:
+                cells.append("[dim]N/A[/dim]")
+            elif score == best_val:
                 cells.append(f"[bold green]{score:.4f}[/bold green]")
             else:
                 cells.append(f"[dim]{score:.4f}[/dim]")
-        table.add_row(metric_label, *cells)
+                
+        if valid_scores:  # Only add if at least one model has score
+            table.add_row(metric_label, *cells)
 
     console.print()
     console.print(table)
 
     # ── Winner / Loser Analysis ───────────────────────────────────
-    winner = max(averages, key=lambda mn: averages[mn]["avg_score"])
-    loser = min(averages, key=lambda mn: averages[mn]["avg_score"])
+    winner = max(averages, key=lambda mn: averages[mn].get("avg_score") or 0.0)
+    loser = min(averages, key=lambda mn: averages[mn].get("avg_score") or 0.0)
     worst = find_worst_scenario(results, loser)
 
     gap = round(
-        averages[winner]["avg_score"] - averages[loser]["avg_score"], 4
+        (averages[winner].get("avg_score") or 0.0) - (averages[loser].get("avg_score") or 0.0), 4
     )
 
     console.print(
         Panel.fit(
-            f"[bold green]🏆 Winner:[/bold green] {winner}\n"
-            f"   Overall avg: [green]{averages[winner]['avg_score']:.4f}[/green]\n\n"
-            f"[bold red]📉 Underperformer:[/bold red] {loser}\n"
-            f"   Overall avg: [red]{averages[loser]['avg_score']:.4f}[/red]  "
+            f"[bold green]Winner:[/bold green] {winner}\n"
+            f"   Overall avg: [green]{averages[winner].get('avg_score') or 0:.4f}[/green]\n\n"
+            f"[bold red]Underperformer:[/bold red] {loser}\n"
+            f"   Overall avg: [red]{averages[loser].get('avg_score') or 0:.4f}[/red]  "
             f"(gap: {gap:.4f})\n\n"
-            f"[bold yellow]🔍 Biggest failure of '{loser}':[/bold yellow]\n"
+            f"[bold yellow]Biggest failure of '{loser}':[/bold yellow]\n"
             f"   Scenario #{worst['scenario_id']}: \"{worst['intent']}\"\n"
             f"   Tone: {worst['tone']} | "
-            f"Fact Recall: {worst['fact_recall']} | "
-            f"Tone Accuracy: {worst['tone_accuracy']} | "
-            f"Clarity: {worst['clarity_conciseness']} | "
-            f"Avg: [red]{worst['avg_score']}[/red]\n\n"
-            f"[bold cyan]✅ Production Recommendation:[/bold cyan]\n"
+            f"Avg: [red]{worst.get('avg_score', 'N/A')}[/red]\n\n"
+            f"[bold cyan]Production Recommendation:[/bold cyan]\n"
             f"   Use [bold]{winner}[/bold]. Advanced prompting (Role-Play + Few-Shot + CoT)\n"
             f"   consistently yields higher fact recall and tone fidelity, which are\n"
             f"   the most critical quality signals for professional email generation.",

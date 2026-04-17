@@ -16,6 +16,12 @@ from openai import OpenAI
 load_dotenv()
 _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+try:
+    from deepeval.test_case import LLMTestCase, LLMTestCaseParams
+    from deepeval.metrics import FaithfulnessMetric, AnswerRelevancyMetric, GEval
+except ImportError:
+    pass
+
 
 # ──────────────────────────────────────────────────────────────────
 # METRIC 1 : Fact Recall Score
@@ -105,10 +111,63 @@ def clarity_conciseness_score(email: str) -> float:
 
 
 # ──────────────────────────────────────────────────────────────────
+# DEEPEVAL METRICS (For Model B)
+# ──────────────────────────────────────────────────────────────────
+def compute_deepeval_metrics(email: str, facts: list[str], intent: str, reference_email: str | None) -> dict:
+    test_case = LLMTestCase(
+        input=intent if intent else "No intent provided",
+        actual_output=email,
+        expected_output=reference_email if reference_email else "None",
+        retrieval_context=facts if facts else ["No facts provided"],
+    )
+
+    faithfulness = FaithfulnessMetric(threshold=0.5)
+    relevancy = AnswerRelevancyMetric(threshold=0.5)
+    
+    correctness = GEval(
+        name="Answer Correctness",
+        criteria="Evaluate if the actual output (email) functionally matches the expected output (reference email).",
+        evaluation_params=[LLMTestCaseParams.INPUT, LLMTestCaseParams.ACTUAL_OUTPUT, LLMTestCaseParams.EXPECTED_OUTPUT],
+        threshold=0.5
+    )
+
+    try:
+        faithfulness.measure(test_case)
+        f_score = faithfulness.score
+    except Exception:
+        f_score = 0.0
+
+    try:
+        relevancy.measure(test_case)
+        r_score = relevancy.score
+    except Exception:
+        r_score = 0.0
+
+    c_score = 0.0
+    if reference_email:
+        try:
+            correctness.measure(test_case)
+            c_score = correctness.score
+        except Exception:
+            c_score = 0.0
+
+    avg = round((f_score + r_score + c_score) / (3.0 if reference_email else 2.0), 4)
+
+    return {
+        "faithfulness": round(f_score, 4),
+        "answer_relevancy": round(r_score, 4),
+        "answer_correctness": round(c_score, 4),
+        "avg_score": avg,
+    }
+
+# ──────────────────────────────────────────────────────────────────
 # COMPOSITE HELPER
 # ──────────────────────────────────────────────────────────────────
-def compute_all_metrics(email: str, facts: list[str], tone: str) -> dict:
-    """Run all three metrics and return a dict including the average."""
+def compute_all_metrics(email: str, facts: list[str], tone: str, intent: str = "", strategy: str = "advanced", reference_email: str | None = None) -> dict:
+    """Run metrics and return a dict including the average, branching on strategy."""
+    if strategy == "thoughtful":
+        return compute_deepeval_metrics(email, facts, intent, reference_email)
+        
     fact_recall = fact_recall_score(email, facts)
     tone_acc = tone_accuracy_score(email, tone)
     clarity = clarity_conciseness_score(email)
@@ -119,3 +178,4 @@ def compute_all_metrics(email: str, facts: list[str], tone: str) -> dict:
         "clarity_conciseness": clarity,
         "avg_score": avg,
     }
+

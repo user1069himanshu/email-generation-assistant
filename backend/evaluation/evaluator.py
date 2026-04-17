@@ -51,9 +51,13 @@ FIELDNAMES = [
     "fact_recall",
     "tone_accuracy",
     "clarity_conciseness",
+    "faithfulness",
+    "answer_relevancy",
+    "answer_correctness",
     "avg_score",
     "generated_email",
 ]
+
 
 
 def run_evaluation() -> list[dict]:
@@ -77,20 +81,32 @@ def run_evaluation() -> list[dict]:
                 strategy=cfg["strategy"],
             )
             metrics = compute_all_metrics(
-                email, scenario["facts"], scenario["tone"]
+                email, 
+                scenario["facts"], 
+                scenario["tone"], 
+                scenario["intent"], 
+                cfg["strategy"], 
+                scenario.get("reference_email")
             )
-            results.append(
-                {
-                    "scenario_id": scenario["id"],
-                    "intent": scenario["intent"],
-                    "tone": scenario["tone"],
-                    "model_name": cfg["name"],
-                    "model": cfg["model"],
-                    "strategy": cfg["strategy"],
-                    **metrics,
-                    "generated_email": email,
-                }
-            )
+            
+            # Ensure all metric keys exist in the dict to avoid DictWriter KeyErrors
+            row_data = {
+                "scenario_id": scenario["id"],
+                "intent": scenario["intent"],
+                "tone": scenario["tone"],
+                "model_name": cfg["name"],
+                "model": cfg["model"],
+                "strategy": cfg["strategy"],
+                "fact_recall": metrics.get("fact_recall", ""),
+                "tone_accuracy": metrics.get("tone_accuracy", ""),
+                "clarity_conciseness": metrics.get("clarity_conciseness", ""),
+                "faithfulness": metrics.get("faithfulness", ""),
+                "answer_relevancy": metrics.get("answer_relevancy", ""),
+                "answer_correctness": metrics.get("answer_correctness", ""),
+                "avg_score": metrics.get("avg_score", ""),
+                "generated_email": email,
+            }
+            results.append(row_data)
             pbar.update(1)
 
     pbar.close()
@@ -105,9 +121,9 @@ def run_evaluation() -> list[dict]:
     with open(JSON_PATH, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
 
-    print(f"\n✅ Evaluation complete!")
-    print(f"   CSV  → {CSV_PATH}")
-    print(f"   JSON → {JSON_PATH}")
+    print(f"\n[DONE] Evaluation complete!")
+    print(f"   CSV  -> {CSV_PATH}")
+    print(f"   JSON -> {JSON_PATH}")
     return results
 
 
