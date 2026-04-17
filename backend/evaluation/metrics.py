@@ -75,7 +75,7 @@ def communication_nuance_score(email: str, tone: str) -> float:
     prompt = (
         f"You are a business communication expert. Evaluate the email for style and tone.\n\n"
         f"REQUESTED TONE: {tone}\n"
-        f"PERSONA: Alex Chen, Senior Business Communication Specialist (Modern, Clear, Persuasive)\n\n"
+        f"PERSONA: Alex Chen, Senior Business Communication Specialist (Modern, Clear, Persuasive, Confident)\n\n"
         f"EMAIL:\n{email}\n\n"
         f"Evaluation Criteria:\n"
         f"1. Tone Match: Does it match the '{tone}' vibe? (0-5 pts)\n"
