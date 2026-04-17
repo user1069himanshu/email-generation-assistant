@@ -25,14 +25,13 @@ JSON_PATH = REPORTS_DIR / "evaluation_results.json"
 console = Console()
 
 METRICS = [
-    ("fact_recall", "Fact Recall"),
-    ("tone_accuracy", "Tone Accuracy"),
-    ("clarity_conciseness", "Clarity & Conciseness"),
-    ("faithfulness", "Faithfulness (DeepEval)"),
-    ("answer_relevancy", "Answer Relevancy (DeepEval)"),
-    ("answer_correctness", "Answer Correctness (DeepEval)"),
+    ("fact_fidelity", "Fact Fidelity"),
+    ("communication_nuance", "Communication Nuance"),
+    ("structural_clarity", "Structural Clarity"),
     ("avg_score", "Overall Average"),
 ]
+
+
 
 
 def load_results() -> list[dict] | None:
@@ -127,7 +126,9 @@ def print_comparison() -> None:
             f"[bold yellow]Biggest failure of '{loser}':[/bold yellow]\n"
             f"   Scenario #{worst['scenario_id']}: \"{worst['intent']}\"\n"
             f"   Tone: {worst['tone']} | "
-            f"Avg: [red]{worst.get('avg_score', 'N/A')}[/red]\n\n"
+            f"Fact Fidelity: {worst['fact_fidelity']} | "
+            f"Communication Nuance: {worst['communication_nuance']} | "
+            f"Structural Clarity: {worst['structural_clarity']} | "
             f"[bold cyan]Production Recommendation:[/bold cyan]\n"
             f"   Use [bold]{winner}[/bold]. Advanced prompting (Role-Play + Few-Shot + CoT)\n"
             f"   consistently yields higher fact recall and tone fidelity, which are\n"

@@ -24,158 +24,133 @@ except ImportError:
 
 
 # ──────────────────────────────────────────────────────────────────
-# METRIC 1 : Fact Recall Score
-# Logic: For each fact, extract meaningful keywords (≥4 chars).
-#         A fact is "recalled" if ≥50% of its keywords appear in
-#         the generated email (case-insensitive).
-#         score = recalled_facts / total_facts  →  0.0 – 1.0
+# METRIC 1 : Fact Fidelity & Grounding
+# Logic: LLM-as-a-judge (GPT-4o-mini) evaluates:
+#         1. Recall (Are all facts present?)
+#         2. Truthfulness (Are facts accurate?)
+#         3. Hallucination (Are there extra unfounded claims?)
 # ──────────────────────────────────────────────────────────────────
-def fact_recall_score(email: str, facts: list[str]) -> float:
-    """Fraction of input facts successfully recalled in the email."""
+def fact_fidelity_score(email: str, facts: list[str]) -> float:
+    """LLM-as-a-Judge: measures grounding, truthfulness, and recall."""
     if not facts:
         return 1.0
 
-    email_lower = email.lower()
-    matched = 0
-
-    for fact in facts:
-        keywords = [w.lower() for w in re.findall(r"\b\w{4,}\b", fact)]
-        if not keywords:
-            matched += 1  # trivially empty fact
-            continue
-        hits = sum(1 for kw in keywords if kw in email_lower)
-        if hits / len(keywords) >= 0.5:
-            matched += 1
-
-    return round(matched / len(facts), 4)
-
-
-# ──────────────────────────────────────────────────────────────────
-# METRIC 2 : Tone Accuracy Score
-# Logic: Ask GPT-4o-mini to rate how well the email matches the
-#         requested tone on a 1-10 scale.
-#         score = rating / 10  →  0.0 – 1.0
-# ──────────────────────────────────────────────────────────────────
-def tone_accuracy_score(email: str, tone: str) -> float:
-    """LLM-as-a-Judge: how accurately does the email match the requested tone?"""
+    facts_list = "\n".join([f"- {f}" for f in facts])
     prompt = (
-        f"You are an expert in business communication.\n\n"
-        f"Rate how accurately the following email matches a '{tone}' tone.\n"
-        f"Respond with ONLY a single integer from 1 to 10:\n"
-        f"  1 = completely wrong tone\n"
-        f" 10 = perfectly matches the '{tone}' tone\n\n"
-        f"Email:\n{email}\n\n"
-        f"Rating (1-10):"
+        f"You are a factual auditor. Evaluate the email strictly against the input facts.\n\n"
+        f"INPUT FACTS:\n{facts_list}\n\n"
+        f"GENERATED EMAIL:\n{email}\n\n"
+        f"Evaluation Criteria:\n"
+        f"1. Recall: Did it include all input facts? (0-4 pts)\n"
+        f"2. Truthfulness: Are the facts presented accurately without distortion? (0-4 pts)\n"
+        f"3. Grounding: Did it avoid adding extra, unfounded factual claims? (0-2 pts)\n\n"
+        f"First, briefly reason through your assessment for each criteria.\n"
+        f"Then, provide a final integer score from 0 to 10 on the last line in this format: '[[score]]'."
     )
     try:
         response = _client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             temperature=0,
-            max_tokens=5,
+            max_tokens=200,
         )
         raw = response.choices[0].message.content.strip()
-        numbers = re.findall(r"\d+\.?\d*", raw)
-        rating = float(numbers[0]) if numbers else 5.0
-        rating = max(1.0, min(10.0, rating))
+        # Extract [[score]]
+        match = re.search(r"\[\[(\d+)\]\]", raw)
+        rating = float(match.group(1)) if match else 5.0
         return round(rating / 10.0, 4)
     except Exception:
-        return 0.5  # neutral fallback on API error
+        return 0.5
 
 
 # ──────────────────────────────────────────────────────────────────
-# METRIC 3 : Clarity & Conciseness Score
+# METRIC 2 : Communication Nuance & Persona
+# Logic: LLM-as-a-judge (GPT-4o-mini) evaluates:
+#         1. Tone Alignment (match the requested label?)
+#         2. Persona Consistency (Alex Chen persona?)
+#         3. Modernity (avoiding robotic clichés)
+# ──────────────────────────────────────────────────────────────────
+def communication_nuance_score(email: str, tone: str) -> float:
+    """LLM-as-a-Judge: measures tone fidelity, persona, and avoidance of clichés."""
+    prompt = (
+        f"You are a business communication expert. Evaluate the email for style and tone.\n\n"
+        f"REQUESTED TONE: {tone}\n"
+        f"PERSONA: Alex Chen, Senior Business Communication Specialist (Modern, Clear, Persuasive)\n\n"
+        f"EMAIL:\n{email}\n\n"
+        f"Evaluation Criteria:\n"
+        f"1. Tone Match: Does it match the '{tone}' vibe? (0-5 pts)\n"
+        f"2. Persona & Style: Does it sound like a modern expert or a robotic LLM? (0-5 pts)\n"
+        f"   - Deduct points for robotic phrases like 'I hope this message finds you well' or rigid formalisms.\n\n"
+        f"First, briefly reason through your assessment for each criteria.\n"
+        f"Then, provide a final integer score from 0 to 10 on the last line in this format: '[[score]]'."
+    )
+    try:
+        response = _client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0,
+            max_tokens=200,
+        )
+        raw = response.choices[0].message.content.strip()
+        match = re.search(r"\[\[(\d+)\]\]", raw)
+        rating = float(match.group(1)) if match else 5.0
+        return round(rating / 10.0, 4)
+    except Exception:
+        return 0.5
+
+
+# ──────────────────────────────────────────────────────────────────
+# METRIC 3 : Structural Integrity & Clarity
 # Logic:
-#   a) Flesch Reading Ease (textstat) — higher = easier to read.
-#      Normalised to 0–1 (clamped to 0–100 range).
-#   b) Length penalty — ideal email is ≤200 words; score degrades
-#      linearly for emails longer than 200 words, hitting 0 at 400.
-#   Combined: 0.6 × flesch_norm + 0.4 × length_score  →  0.0 – 1.0
+#   a) Format Check (Subject, Greeting, CTA) - 0.4
+#   b) Readability (Flesch Ease) - 0.4
+#   c) Conciseness (Word Count penalty) - 0.2
 # ──────────────────────────────────────────────────────────────────
-def clarity_conciseness_score(email: str) -> float:
-    """Automated clarity (Flesch) + conciseness (length penalty)."""
-    word_count = len(email.split())
-    flesch = textstat.flesch_reading_ease(email)
+def structural_clarity_score(email: str) -> float:
+    """Combines format adherence, readability, and conciseness."""
+    # 1. Format Check (0.0 - 1.0)
+    has_subject = "Subject:" in email
+    has_greeting = bool(re.search(r"(Dear|Hi|Hello|Hey)", email, re.I))
+    # Look for a closing/CTA (check last few lines)
+    has_cta = len(email.split("\n")[-4:]) >= 1 
+    
+    format_score = (0.4 if has_subject else 0) + (0.3 if has_greeting else 0) + (0.3 if has_cta else 0)
 
-    # Normalise Flesch score
+    # 2. Readability (0.0 - 1.0)
+    flesch = textstat.flesch_reading_ease(email)
     flesch_norm = max(0.0, min(100.0, flesch)) / 100.0
 
-    # Length penalty
+    # 3. Conciseness (0.0 - 1.0)
+    word_count = len(email.split())
     if word_count <= 200:
-        length_score = 1.0
+        conciseness_score = 1.0
     else:
-        length_score = max(0.0, 1.0 - (word_count - 200) / 200.0)
+        conciseness_score = max(0.0, 1.0 - (word_count - 200) / 200.0)
 
-    score = 0.6 * flesch_norm + 0.4 * length_score
+    score = (0.4 * format_score) + (0.4 * flesch_norm) + (0.2 * conciseness_score)
     return round(score, 4)
 
-
-# ──────────────────────────────────────────────────────────────────
-# DEEPEVAL METRICS (For Model B)
-# ──────────────────────────────────────────────────────────────────
-def compute_deepeval_metrics(email: str, facts: list[str], intent: str, reference_email: str | None) -> dict:
-    test_case = LLMTestCase(
-        input=intent if intent else "No intent provided",
-        actual_output=email,
-        expected_output=reference_email if reference_email else "None",
-        retrieval_context=facts if facts else ["No facts provided"],
-    )
-
-    faithfulness = FaithfulnessMetric(threshold=0.5)
-    relevancy = AnswerRelevancyMetric(threshold=0.5)
-    
-    correctness = GEval(
-        name="Answer Correctness",
-        criteria="Evaluate if the actual output (email) functionally matches the expected output (reference email).",
-        evaluation_params=[LLMTestCaseParams.INPUT, LLMTestCaseParams.ACTUAL_OUTPUT, LLMTestCaseParams.EXPECTED_OUTPUT],
-        threshold=0.5
-    )
-
-    try:
-        faithfulness.measure(test_case)
-        f_score = faithfulness.score
-    except Exception:
-        f_score = 0.0
-
-    try:
-        relevancy.measure(test_case)
-        r_score = relevancy.score
-    except Exception:
-        r_score = 0.0
-
-    c_score = 0.0
-    if reference_email:
-        try:
-            correctness.measure(test_case)
-            c_score = correctness.score
-        except Exception:
-            c_score = 0.0
-
-    avg = round((f_score + r_score + c_score) / (3.0 if reference_email else 2.0), 4)
-
-    return {
-        "faithfulness": round(f_score, 4),
-        "answer_relevancy": round(r_score, 4),
-        "answer_correctness": round(c_score, 4),
-        "avg_score": avg,
-    }
 
 # ──────────────────────────────────────────────────────────────────
 # COMPOSITE HELPER
 # ──────────────────────────────────────────────────────────────────
 def compute_all_metrics(email: str, facts: list[str], tone: str, intent: str = "", strategy: str = "advanced", reference_email: str | None = None) -> dict:
-    """Run metrics and return a dict including the average, branching on strategy."""
-    if strategy == "thoughtful":
-        return compute_deepeval_metrics(email, facts, intent, reference_email)
-        
-    fact_recall = fact_recall_score(email, facts)
-    tone_acc = tone_accuracy_score(email, tone)
-    clarity = clarity_conciseness_score(email)
-    avg = round((fact_recall + tone_acc + clarity) / 3.0, 4)
+    """Run the broadened 3 custom metrics with weighted average: 40/35/25."""
+    fidelity = fact_fidelity_score(email, facts)
+    nuance = communication_nuance_score(email, tone)
+    structure = structural_clarity_score(email)
+    
+    # Updated Weights: 40% Fidelity, 35% Nuance, 25% Structure
+    avg = round((0.40 * fidelity + 0.35 * nuance + 0.25 * structure), 4)
+    
     return {
-        "fact_recall": fact_recall,
-        "tone_accuracy": tone_acc,
-        "clarity_conciseness": clarity,
+        "fact_fidelity": fidelity,
+        "communication_nuance": nuance,
+        "structural_clarity": structure,
         "avg_score": avg,
     }
+
+
+
+
 

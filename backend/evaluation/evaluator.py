@@ -48,15 +48,14 @@ FIELDNAMES = [
     "model_name",
     "model",
     "strategy",
-    "fact_recall",
-    "tone_accuracy",
-    "clarity_conciseness",
-    "faithfulness",
-    "answer_relevancy",
-    "answer_correctness",
+    "fact_fidelity",
+    "communication_nuance",
+    "structural_clarity",
     "avg_score",
     "generated_email",
 ]
+
+
 
 
 
@@ -89,7 +88,6 @@ def run_evaluation() -> list[dict]:
                 scenario.get("reference_email")
             )
             
-            # Ensure all metric keys exist in the dict to avoid DictWriter KeyErrors
             row_data = {
                 "scenario_id": scenario["id"],
                 "intent": scenario["intent"],
@@ -97,16 +95,15 @@ def run_evaluation() -> list[dict]:
                 "model_name": cfg["name"],
                 "model": cfg["model"],
                 "strategy": cfg["strategy"],
-                "fact_recall": metrics.get("fact_recall", ""),
-                "tone_accuracy": metrics.get("tone_accuracy", ""),
-                "clarity_conciseness": metrics.get("clarity_conciseness", ""),
-                "faithfulness": metrics.get("faithfulness", ""),
-                "answer_relevancy": metrics.get("answer_relevancy", ""),
-                "answer_correctness": metrics.get("answer_correctness", ""),
-                "avg_score": metrics.get("avg_score", ""),
+                "fact_fidelity": metrics.get("fact_fidelity", 0),
+                "communication_nuance": metrics.get("communication_nuance", 0),
+                "structural_clarity": metrics.get("structural_clarity", 0),
+                "avg_score": metrics.get("avg_score", 0),
                 "generated_email": email,
             }
             results.append(row_data)
+
+
             pbar.update(1)
 
     pbar.close()
