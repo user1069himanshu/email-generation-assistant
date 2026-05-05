@@ -14,6 +14,10 @@ from .prompts import (
     SYSTEM_PROMPT_THOUGHTFUL,
     build_advanced_prompt,
     build_thoughtful_prompt,
+    SYSTEM_PROMPT_PLANNER,
+    SYSTEM_PROMPT_WRITER,
+    build_blueprint_prompt,
+    build_writer_prompt,
 )
 
 load_dotenv()
@@ -26,6 +30,7 @@ def generate_email(
     tone: str,
     model: str = "gpt-4o",
     strategy: str = "advanced",
+    context_email: str = "",
 ) -> str:
     """
     Generate a professional email.
@@ -40,7 +45,22 @@ def generate_email(
     Returns:
         Generated email text (subject line included).
     """
-    if strategy == "advanced":
+    if strategy == "chained":
+        # --- STEP 1: GENERATE BLUEPRINT ---
+        blueprint_resp = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT_PLANNER.format(tone=tone)},
+                {"role": "user", "content": build_blueprint_prompt(intent, context_email, tone)},
+            ],
+            temperature=0.3,
+        )
+        blueprint = blueprint_resp.choices[0].message.content.strip()
+
+        # --- STEP 2: GENERATE FINAL EMAIL ---
+        system_prompt = SYSTEM_PROMPT_WRITER
+        user_prompt = build_writer_prompt(blueprint, tone)
+    elif strategy == "advanced":
         system_prompt = SYSTEM_PROMPT_ADVANCED
         user_prompt = build_advanced_prompt(intent, facts, tone)
     else:

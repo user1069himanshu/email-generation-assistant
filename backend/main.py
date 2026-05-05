@@ -44,6 +44,7 @@ class GenerateRequest(BaseModel):
     tone: str
     model: str = "gpt-4o"
     strategy: str = "advanced"
+    context_email: str = ""
 
 
 class GenerateResponse(BaseModel):
@@ -78,6 +79,7 @@ def generate(req: GenerateRequest):
             tone=req.tone,
             model=req.model,
             strategy=req.strategy,
+            context_email=req.context_email,
         )
         return GenerateResponse(email=email, model=req.model, strategy=req.strategy)
     except Exception as exc:
