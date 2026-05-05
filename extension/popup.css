@@ -362,3 +362,49 @@ body {
 }
 
 .metric-avg .metric-value { color: #34d399; }
+
+/* ── Advanced Options Accordion ───────────────────────────── */
+.advanced-options {
+  margin-top: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.advanced-options summary {
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: color var(--transition), background var(--transition);
+}
+
+.advanced-options summary::-webkit-details-marker {
+  display: none;
+}
+
+.advanced-options summary::after {
+  content: '▼';
+  font-size: 8px;
+  transition: transform 0.2s ease;
+  opacity: 0.5;
+}
+
+.advanced-options[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.advanced-options summary:hover {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.advanced-options .field-group {
+  padding: 0 12px 12px;
+}

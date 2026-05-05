@@ -32,45 +32,58 @@
       <!-- Intent -->
       <div class="field-group">
         <label class="field-label" for="intent">
-          <span class="label-icon">🎯</span> Intent
+          <span class="label-icon">🎯</span> Your Intent
         </label>
         <input
           id="intent"
           class="field-input"
           type="text"
-          placeholder="e.g. Follow up after a sales meeting"
+          placeholder="e.g. Say I'm interested but need a better price"
           autocomplete="off"
         />
       </div>
 
-      <!-- Key Facts -->
+      <!-- Context Email -->
       <div class="field-group">
-        <label class="field-label" for="facts">
-          <span class="label-icon">📋</span> Key Facts
-          <span class="field-hint">one per line</span>
+        <label class="field-label" for="context_email">
+          <span class="label-icon">📧</span> Original Email
+          <span class="field-hint">(auto-filled if in Gmail)</span>
         </label>
         <textarea
-          id="facts"
+          id="context_email"
           class="field-textarea"
-          rows="4"
-          placeholder="Meeting was on April 10&#10;Discussed pricing for 50 licences&#10;Next step: send proposal by April 17"
+          rows="3"
+          placeholder="Paste the email you are replying to here..."
         ></textarea>
       </div>
 
-      <!-- Tone -->
-      <div class="field-group">
-        <label class="field-label">
-          <span class="label-icon">🎭</span> Tone
-        </label>
-        <div class="tone-chips" id="tone-chips">
-          <button class="chip active" data-tone="formal">Formal</button>
-          <button class="chip" data-tone="casual">Casual</button>
-          <button class="chip" data-tone="urgent">Urgent</button>
-          <button class="chip" data-tone="empathetic">Empathetic</button>
-          <button class="chip" data-tone="warm">Warm</button>
-          <button class="chip" data-tone="professional">Professional</button>
+      <!-- Advanced Options (Facts & Tone) -->
+      <details class="advanced-options">
+        <summary>Advanced Options (Tone & Facts)</summary>
+        
+        <!-- Tone -->
+        <div class="field-group" style="margin-top: 12px;">
+          <label class="field-label">🎭 Tone Override</label>
+          <div class="tone-chips" id="tone-chips">
+            <button class="chip active" data-tone="professional">Professional</button>
+            <button class="chip" data-tone="formal">Formal</button>
+            <button class="chip" data-tone="casual">Casual</button>
+            <button class="chip" data-tone="urgent">Urgent</button>
+            <button class="chip" data-tone="warm">Warm</button>
+          </div>
         </div>
-      </div>
+
+        <!-- Key Facts -->
+        <div class="field-group">
+          <label class="field-label" for="facts">📋 Custom Facts</label>
+          <textarea
+            id="facts"
+            class="field-textarea"
+            rows="2"
+            placeholder="Add specific facts not in the original email..."
+          ></textarea>
+        </div>
+      </details>
 
       <!-- Generate Button -->
       <button class="btn-generate" id="btn-generate">

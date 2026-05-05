@@ -40,8 +40,8 @@ app.add_middleware(
 
 class GenerateRequest(BaseModel):
     intent: str
-    facts: list[str]
-    tone: str
+    facts: list[str] = []
+    tone: str = "professional"
     model: str = "gpt-4o"
     strategy: str = "advanced"
     context_email: str = ""

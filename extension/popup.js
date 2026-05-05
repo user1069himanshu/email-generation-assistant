@@ -7,6 +7,7 @@ const API_BASE = "http://localhost:8000";
 
 // ── DOM refs ──────────────────────────────────────────────────────
 const intentInput    = document.getElementById("intent");
+const contextInput   = document.getElementById("context_email");
 const factsInput     = document.getElementById("facts");
 const toneChips      = document.querySelectorAll(".chip");
 const btnGenerate    = document.getElementById("btn-generate");
@@ -26,7 +27,7 @@ const metricClarity  = document.getElementById("metric-clarity");
 const metricAvg      = document.getElementById("metric-avg");
 
 // ── State ─────────────────────────────────────────────────────────
-let selectedTone     = "formal";
+let selectedTone     = "professional";
 let lastEmail        = "";
 let lastFacts        = [];
 
@@ -71,10 +72,11 @@ btnGenerate.addEventListener("click", async () => {
   hideError();
 
   const intent = intentInput.value.trim();
+  const contextEmail = contextInput.value.trim();
   const rawFacts = factsInput.value.trim();
 
-  if (!intent) { showError("Please enter an intent."); return; }
-  if (!rawFacts) { showError("Please enter at least one key fact."); return; }
+  if (!intent) { showError("Please enter what you want to say (Intent)."); return; }
+  // facts are now optional
 
   const facts = rawFacts
     .split("\n")
@@ -94,8 +96,9 @@ btnGenerate.addEventListener("click", async () => {
         intent,
         facts,
         tone: selectedTone,
+        context_email: contextEmail,
         model: "gpt-4o",
-        strategy: "advanced",
+        strategy: "chained",
       }),
     });
 
