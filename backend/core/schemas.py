@@ -11,5 +11,5 @@ class EmailBlueprint(BaseModel):
 
 # --- CALL 2: WRITER OUTPUT SCHEMA ---
 class GeneratedEmail(BaseModel):
-    subject: str = Field(..., description="The subject line of the email.")
-    body: str = Field(..., description="The full body of the email, excluding the subject line and any signature.")
+    subject: str | None = Field(None, description="The subject line of the email. Can be omitted for replies.")
+    body: str = Field(..., description="The full body of the email, excluding any signature.")

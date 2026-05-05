@@ -63,11 +63,12 @@ def generate_email(
         blueprint_obj = EmailBlueprint.model_validate_json(blueprint_json)
 
         # --- STEP 2: GENERATE FINAL EMAIL (Structured) ---
+        is_reply = bool(context_email.strip())
         writer_resp = client.chat.completions.create(
             model=model,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT_WRITER},
-                {"role": "user", "content": build_writer_prompt(blueprint_obj.model_dump_json(), tone)},
+                {"role": "user", "content": build_writer_prompt(blueprint_obj.model_dump_json(), tone, is_reply=is_reply)},
             ],
             temperature=0.7,
             response_format={"type": "json_object"}
@@ -75,7 +76,9 @@ def generate_email(
         email_json = writer_resp.choices[0].message.content.strip()
         email_obj = GeneratedEmail.model_validate_json(email_json)
         
-        return f"Subject: {email_obj.subject}\n\n{email_obj.body}".strip()
+        if email_obj.subject:
+            return f"Subject: {email_obj.subject}\n\n{email_obj.body}".strip()
+        return email_obj.body.strip()
 
     elif strategy == "advanced":
         system_prompt = SYSTEM_PROMPT_ADVANCED

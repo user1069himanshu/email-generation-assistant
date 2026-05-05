@@ -169,15 +169,18 @@ Rules:
 1. Follow the Blueprint's narrative flow strictly.
 2. Maintain the requested tone perfectly.
 3. GREETINGS: Use the 'recipient_name' from the blueprint (e.g., 'Dear [Name]' or 'Dear Team'). Be natural and professional.
-4. NO SIGN-OFF OR FOOTER. End the body immediately after the final sentence.
-5. Use modern, natural business English."""
+4. SUBJECT: If this is a reply to an existing email (context provided), you may set 'subject' to null or prefix it with 'Re:'. If this is a NEW email, you MUST provide a subject.
+5. NO SIGN-OFF OR FOOTER. End the body immediately after the final sentence.
+6. Use modern, natural business English."""
 
-def build_writer_prompt(blueprint: str, tone: str) -> str:
-    return f"""Using the Blueprint below, write the final email in a {tone} tone.
+def build_writer_prompt(blueprint: str, tone: str, is_reply: bool = False) -> str:
+    context_hint = "This is a REPLY to an existing thread." if is_reply else "This is a NEW email thread."
+    return f"""{context_hint}
+Using the Blueprint below, write the final email in a {tone} tone.
 
 STRATEGIC BLUEPRINT:
 \"\"\"
 {blueprint}
 \"\"\"
 
-FINAL EMAIL (starting with 'Subject:'):"""
+FINAL EMAIL (JSON format):"""
