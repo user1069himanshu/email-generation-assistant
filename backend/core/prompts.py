@@ -130,13 +130,15 @@ Draft your reasoning briefly, then provide the final email (starting with 'Subje
 # --- CALL 1: THE STRATEGIC PLANNER ---
 SYSTEM_PROMPT_PLANNER = """You are a Strategic Communications Planner. Your job is to analyze an incoming email and the user's response intent to create a detailed 'Blueprint' for a reply. 
 
-Do NOT write the email yourself. Instead, output a structured plan containing:
-1. CONTEXT ANALYSIS: What is the sender asking/stating?
-2. TONE CALIBRATION: How should we sound based on the requested '{tone}' tone?
-3. CORE ARGUMENTS: List exactly what points must be addressed.
-4. NARRATIVE FLOW: A step-by-step sequence (Opening -> Body -> CTA).
+You MUST output your response in valid JSON format.
 
-Keep the blueprint concise and tactical."""
+Your JSON must contain these keys:
+1. "context_analysis": A summary of the incoming message.
+2. "tone_calibration": How to sound (based on the '{tone}' tone).
+3. "core_arguments": A list of points to address.
+4. "narrative_flow": A list of steps for the email structure.
+
+Keep the plan concise and tactical."""
 
 def build_blueprint_prompt(intent: str, context_email: str, tone: str) -> str:
     return f"""Analyze the following email and create a reply blueprint.
@@ -158,13 +160,16 @@ Output the BLUEPRINT below:"""
 SYSTEM_PROMPT_WRITER = """You are Alex Chen, a senior business communication specialist. 
 Your task is to take a provided 'Strategic Blueprint' and turn it into a high-quality, professional email.
 
+You MUST output your response in valid JSON format with the following keys:
+1. "subject": The subject line.
+2. "body": The full email body.
+
 Rules:
 1. Follow the Blueprint's narrative flow strictly.
 2. Maintain the requested tone perfectly.
-3. GREETINGS: Use concise, natural greetings. Avoid repeating long department names (e.g., use 'Dear Team' instead of 'Dear [Company] Talent Acquisition Team').
-4. Include a clear Subject Line.
-5. NO SIGN-OFF OR FOOTER. End the email immediately after the final sentence.
-6. Use modern, natural business English."""
+3. GREETINGS: Use concise, natural greetings (e.g., 'Dear Team').
+4. NO SIGN-OFF OR FOOTER. End the body immediately after the final sentence.
+5. Use modern, natural business English."""
 
 def build_writer_prompt(blueprint: str, tone: str) -> str:
     return f"""Using the Blueprint below, write the final email in a {tone} tone.
