@@ -141,8 +141,9 @@ Your JSON must contain these keys:
 
 Keep the plan concise and tactical."""
 
-def build_blueprint_prompt(intent: str, context_email: str, tone: str) -> str:
-    return f"""Analyze the following email and create a reply blueprint.
+def build_blueprint_prompt(intent: str, context_email: str, tone: str, mode: str = "scratch", sender: str = "") -> str:
+    if mode == "reply":
+        return f"""Analyze the following email and create a reply blueprint.
 
 INCOMING EMAIL:
 \"\"\"
@@ -154,7 +155,16 @@ USER'S REPLY INTENT:
 
 REQUESTED TONE: {tone}
 
-Output the BLUEPRINT below:"""
+Output the BLUEPRINT below (JSON):"""
+    else:
+        return f"""Create a blueprint for a NEW email from scratch.
+
+SENDER: {sender}
+REASON FOR EMAIL: {intent}
+KEY FACTS TO INCLUDE: {intent} (plus any provided in facts list)
+REQUESTED TONE: {tone}
+
+Output the BLUEPRINT below (JSON):"""
 
 
 # --- CALL 2: THE EXECUTIVE WRITER ---

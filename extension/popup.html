@@ -26,36 +26,76 @@
       <div class="model-badge" id="model-badge">Advanced</div>
     </header>
 
+    <!-- Mode Switcher -->
+    <div class="mode-tabs">
+      <button class="tab active" data-mode="scratch">New Email</button>
+      <button class="tab" data-mode="reply">Reply</button>
+    </div>
+
     <!-- Form -->
     <main class="form-section">
 
-      <!-- Intent -->
-      <div class="field-group">
-        <label class="field-label" for="intent">
-          <span class="label-icon">🎯</span> Your Intent
-        </label>
-        <input
-          id="intent"
-          class="field-input"
-          type="text"
-          placeholder="e.g. Say I'm interested but need a better price"
-          autocomplete="off"
-        />
+      <!-- SCRATCH MODE FIELDS -->
+      <div id="scratch-fields">
+        <!-- Sender -->
+        <div class="field-group">
+          <label class="field-label" for="sender">
+            <span class="label-icon">👤</span> Sender
+          </label>
+          <input
+            id="sender"
+            class="field-input"
+            type="text"
+            placeholder="e.g. Himanshu, MLE"
+            autocomplete="off"
+          />
+        </div>
+
+        <!-- Reason -->
+        <div class="field-group">
+          <label class="field-label" for="reason">
+            <span class="label-icon">💡</span> Reason
+          </label>
+          <input
+            id="reason"
+            class="field-input"
+            type="text"
+            placeholder="e.g. Propose a new AI project"
+            autocomplete="off"
+          />
+        </div>
       </div>
 
-      <!-- Context Email -->
-      <div class="field-group">
-        <label class="field-label" for="context_email">
-          <span class="label-icon">📧</span> Original Email
-          <span class="field-hint">(auto-filled if in Gmail)</span>
-        </label>
-        <textarea
-          id="context_email"
-          class="field-textarea"
-          rows="3"
-          placeholder="Paste the email you are replying to here..."
-        ></textarea>
+      <!-- REPLY MODE FIELDS (Hidden by default) -->
+      <div id="reply-fields" class="hidden">
+        <!-- Intent -->
+        <div class="field-group">
+          <label class="field-label" for="intent">
+            <span class="label-icon">🎯</span> Your Intent
+          </label>
+          <input
+            id="intent"
+            class="field-input"
+            type="text"
+            placeholder="e.g. Acknowledge and stay in touch"
+            autocomplete="off"
+          />
+        </div>
+
+        <!-- Context Email -->
+        <div class="field-group">
+          <label class="field-label" for="context_email">
+            <span class="label-icon">📧</span> Original Email
+          </label>
+          <textarea
+            id="context_email"
+            class="field-textarea"
+            rows="3"
+            placeholder="Paste the email you are replying to here..."
+          ></textarea>
+        </div>
       </div>
+
 
       <!-- Advanced Options (Facts & Tone) -->
       <details class="advanced-options">

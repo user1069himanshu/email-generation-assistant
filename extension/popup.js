@@ -6,6 +6,12 @@
 const API_BASE = "http://localhost:8000";
 
 // ── DOM refs ──────────────────────────────────────────────────────
+const modeTabs      = document.querySelectorAll(".tab");
+const scratchFields  = document.getElementById("scratch-fields");
+const replyFields    = document.getElementById("reply-fields");
+
+const senderInput    = document.getElementById("sender");
+const reasonInput    = document.getElementById("reason");
 const intentInput    = document.getElementById("intent");
 const contextInput   = document.getElementById("context_email");
 const factsInput     = document.getElementById("facts");
@@ -27,9 +33,23 @@ const metricClarity  = document.getElementById("metric-clarity");
 const metricAvg      = document.getElementById("metric-avg");
 
 // ── State ─────────────────────────────────────────────────────────
+let activeMode       = "scratch";
 let selectedTone     = "professional";
 let lastEmail        = "";
 let lastFacts        = [];
+
+// ── Mode Tab Selection ─────────────────────────────────────────────
+modeTabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    modeTabs.forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    activeMode = tab.dataset.mode;
+
+    // Toggle fields visibility
+    scratchFields.classList.toggle("hidden", activeMode !== "scratch");
+    replyFields.classList.toggle("hidden", activeMode !== "reply");
+  });
+});
 
 // ── Tone chip selection ───────────────────────────────────────────
 toneChips.forEach(chip => {
@@ -71,12 +91,20 @@ function setMetric(cardEl, value) {
 btnGenerate.addEventListener("click", async () => {
   hideError();
 
+  const sender = senderInput.value.trim();
+  const reason = reasonInput.value.trim();
   const intent = intentInput.value.trim();
   const contextEmail = contextInput.value.trim();
   const rawFacts = factsInput.value.trim();
 
-  if (!intent) { showError("Please enter what you want to say (Intent)."); return; }
-  // facts are now optional
+  // Validation based on mode
+  if (activeMode === "scratch") {
+    if (!sender) { showError("Please enter the Sender name."); return; }
+    if (!reason) { showError("Please enter the Reason for the email."); return; }
+  } else {
+    if (!intent) { showError("Please enter your Intent for the reply."); return; }
+    if (!contextEmail) { showError("Please paste the Original Email."); return; }
+  }
 
   const facts = rawFacts
     .split("\n")
@@ -93,6 +121,9 @@ btnGenerate.addEventListener("click", async () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        mode: activeMode,
+        sender,
+        reason,
         intent,
         facts,
         tone: selectedTone,

@@ -39,11 +39,14 @@ app.add_middleware(
 # ─── Request / Response models ────────────────────────────────────
 
 class GenerateRequest(BaseModel):
-    intent: str
+    mode: str = "scratch"  # "scratch" or "reply"
+    intent: str | None = None # Used for reply
+    reason: str | None = None # Used for scratch
+    sender: str | None = None # Used for scratch
     facts: list[str] = []
     tone: str = "professional"
     model: str = "gpt-4o"
-    strategy: str = "advanced"
+    strategy: str = "chained"
     context_email: str = ""
 
 
@@ -74,12 +77,14 @@ def generate(req: GenerateRequest):
     """Generate a professional email from intent, facts, and tone."""
     try:
         email = generate_email(
-            intent=req.intent,
+            mode=req.mode,
+            intent=req.intent or req.reason or "", 
             facts=req.facts,
             tone=req.tone,
+            sender=req.sender,
+            context_email=req.context_email,
             model=req.model,
             strategy=req.strategy,
-            context_email=req.context_email,
         )
         return GenerateResponse(email=email, model=req.model, strategy=req.strategy)
     except Exception as exc:

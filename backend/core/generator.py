@@ -28,11 +28,13 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 def generate_email(
-    intent: str,
-    facts: list[str],
-    tone: str,
+    mode: str = "scratch",
+    intent: str = "",
+    facts: list[str] = [],
+    tone: str = "professional",
+    sender: str = "",
     model: str = "gpt-4o",
-    strategy: str = "advanced",
+    strategy: str = "chained",
     context_email: str = "",
 ) -> str:
     """
@@ -54,7 +56,7 @@ def generate_email(
             model=model,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT_PLANNER.format(tone=tone)},
-                {"role": "user", "content": build_blueprint_prompt(intent, context_email, tone)},
+                {"role": "user", "content": build_blueprint_prompt(intent, context_email, tone, mode, sender)},
             ],
             temperature=0.3,
             response_format={"type": "json_object"}
