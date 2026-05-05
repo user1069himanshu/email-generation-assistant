@@ -43,6 +43,7 @@ class GenerateRequest(BaseModel):
     intent: str | None = None # Used for reply
     reason: str | None = None # Used for scratch
     sender: str | None = None # Used for scratch
+    recipient: str | None = None # Used for scratch
     facts: list[str] = []
     tone: str = "professional"
     model: str = "gpt-4o"
@@ -82,6 +83,7 @@ def generate(req: GenerateRequest):
             facts=req.facts,
             tone=req.tone,
             sender=req.sender,
+            recipient=req.recipient,
             context_email=req.context_email,
             model=req.model,
             strategy=req.strategy,

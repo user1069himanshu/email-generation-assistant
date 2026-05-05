@@ -33,6 +33,7 @@ def generate_email(
     facts: list[str] = [],
     tone: str = "professional",
     sender: str = "",
+    recipient: str = "",
     model: str = "gpt-4o",
     strategy: str = "chained",
     context_email: str = "",
@@ -56,7 +57,7 @@ def generate_email(
             model=model,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT_PLANNER.format(tone=tone)},
-                {"role": "user", "content": build_blueprint_prompt(intent, context_email, tone, mode, sender)},
+                {"role": "user", "content": build_blueprint_prompt(intent, context_email, tone, mode, sender, recipient)},
             ],
             temperature=0.3,
             response_format={"type": "json_object"}

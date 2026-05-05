@@ -141,7 +141,7 @@ Your JSON must contain these keys:
 
 Keep the plan concise and tactical."""
 
-def build_blueprint_prompt(intent: str, context_email: str, tone: str, mode: str = "scratch", sender: str = "") -> str:
+def build_blueprint_prompt(intent: str, context_email: str, tone: str, mode: str = "scratch", sender: str = "", recipient: str = "") -> str:
     if mode == "reply":
         return f"""Analyze the following email and create a reply blueprint.
 
@@ -157,13 +157,16 @@ REQUESTED TONE: {tone}
 
 Output the BLUEPRINT below (JSON):"""
     else:
-        return f"""Create a blueprint for a NEW email from scratch.
+        return f"""Create a blueprint for a NEW email thread. 
+You are acting as a Ghostwriter for the SENDER.
 
 SENDER: {sender}
-REASON FOR EMAIL: {intent}
-KEY FACTS TO INCLUDE: {intent} (plus any provided in facts list)
+RECIPIENT: {recipient}
+REASON FOR WRITING: {intent}
+KEY FACTS: {intent} (plus any provided in facts list)
 REQUESTED TONE: {tone}
 
+Your goal is to write AS the sender, addressed to the RECIPIENT. 
 Output the BLUEPRINT below (JSON):"""
 
 

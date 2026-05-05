@@ -11,6 +11,7 @@ const scratchFields  = document.getElementById("scratch-fields");
 const replyFields    = document.getElementById("reply-fields");
 
 const senderInput    = document.getElementById("sender");
+const recipientInput = document.getElementById("recipient");
 const reasonInput    = document.getElementById("reason");
 const intentInput    = document.getElementById("intent");
 const contextInput   = document.getElementById("context_email");
@@ -92,6 +93,7 @@ btnGenerate.addEventListener("click", async () => {
   hideError();
 
   const sender = senderInput.value.trim();
+  const recipient = recipientInput.value.trim();
   const reason = reasonInput.value.trim();
   const intent = intentInput.value.trim();
   const contextEmail = contextInput.value.trim();
@@ -100,6 +102,7 @@ btnGenerate.addEventListener("click", async () => {
   // Validation based on mode
   if (activeMode === "scratch") {
     if (!sender) { showError("Please enter the Sender name."); return; }
+    if (!recipient) { showError("Please enter the Recipient name."); return; }
     if (!reason) { showError("Please enter the Reason for the email."); return; }
   } else {
     if (!intent) { showError("Please enter your Intent for the reply."); return; }
@@ -123,6 +126,7 @@ btnGenerate.addEventListener("click", async () => {
       body: JSON.stringify({
         mode: activeMode,
         sender,
+        recipient,
         reason,
         intent,
         facts,
