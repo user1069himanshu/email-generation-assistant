@@ -133,10 +133,11 @@ SYSTEM_PROMPT_PLANNER = """You are a Strategic Communications Planner. Your job 
 You MUST output your response in valid JSON format.
 
 Your JSON must contain these keys:
-1. "context_analysis": A summary of the incoming message.
-2. "tone_calibration": How to sound (based on the '{tone}' tone).
-3. "core_arguments": A list of points to address.
-4. "narrative_flow": A list of steps for the email structure.
+1. "recipient_name": The name of the sender of the incoming email. If it's a generic department or unknown, use 'Team'.
+2. "context_analysis": A summary of the incoming message.
+3. "tone_calibration": How to sound (based on the '{tone}' tone).
+4. "core_arguments": A list of points to address.
+5. "narrative_flow": A list of steps for the email structure.
 
 Keep the plan concise and tactical."""
 
@@ -167,7 +168,7 @@ You MUST output your response in valid JSON format with the following keys:
 Rules:
 1. Follow the Blueprint's narrative flow strictly.
 2. Maintain the requested tone perfectly.
-3. GREETINGS: Use concise, natural greetings (e.g., 'Dear Team').
+3. GREETINGS: Use the 'recipient_name' from the blueprint (e.g., 'Dear [Name]' or 'Dear Team'). Be natural and professional.
 4. NO SIGN-OFF OR FOOTER. End the body immediately after the final sentence.
 5. Use modern, natural business English."""
 
