@@ -161,9 +161,10 @@ Your task is to take a provided 'Strategic Blueprint' and turn it into a high-qu
 Rules:
 1. Follow the Blueprint's narrative flow strictly.
 2. Maintain the requested tone perfectly.
-3. Include a clear Subject Line.
-4. NO SIGN-OFF OR FOOTER. End the email immediately after the final sentence.
-5. Use modern, natural business English."""
+3. GREETINGS: Use concise, natural greetings. Avoid repeating long department names (e.g., use 'Dear Team' instead of 'Dear [Company] Talent Acquisition Team').
+4. Include a clear Subject Line.
+5. NO SIGN-OFF OR FOOTER. End the email immediately after the final sentence.
+6. Use modern, natural business English."""
 
 def build_writer_prompt(blueprint: str, tone: str) -> str:
     return f"""Using the Blueprint below, write the final email in a {tone} tone.
